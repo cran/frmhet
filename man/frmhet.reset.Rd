@@ -1,0 +1,67 @@
+\name{frmhet.reset}
+\alias{frmhet.reset}
+
+\title{
+RESET Test for Fractional Regression Models under Neglected Heterogeneity
+}
+
+\description{
+\code{frmhet.reset} is used to test the specification of fractional regression models estimated by GMMx or LINx.
+}
+
+\usage{
+frmhet.reset(object, lastpower.vec = 3, version = "Wald", table = T, ...)
+}
+
+\arguments{
+  \item{object}{
+an object containing the results of an \code{frmhet} command.
+}
+  \item{lastpower.vec}{
+a numeric vector containing the maximum powers of the linear predictors to be used in RESET tests.
+}
+  \item{version}{
+a vector containing the test versions to use. Available options: \code{Wald} (the default) and \code{LM} (only 
+available for \code{GMMx}).
+}
+  \item{table}{
+a logical value indicating whether a summary table with the test results should be printed.
+}
+  \item{\dots}{
+Arguments to pass to \link[stats]{nlminb}, which is used to estimate the model under the alternative hypothesis 
+when \code{version} is equal to \code{"Wald"} and the null model was estimated by \code{GMMx}.
+}
+}
+
+\details{
+\code{frmhet.reset} applies the RESET test statistic to fractional regression
+models estimated via \code{frmhet} using the options \code{GMMx} or \code{LINx}. 
+\code{frmhet.reset} may be used to test simultaneously the validity of the link
+specification and the transformation applied to the response variable by each 
+estimator.  It is taken into account the option that was chosen for computing 
+standard errors in the model under evaluation. See Ramalho and Ramalho and 
+Ramalho (2015) for details.
+}
+\value{
+\code{frm.reset} returns a named vector with the test results.
+}
+
+\references{
+Ramalho, E.A. and J.J.S. Ramalho (2015), "Moment-based estimation of nonlinear 
+regression models with boundary outcomes and endogeneity, with applications to 
+nonnegative and fractional responses", \emph{Econometric Reviews}, forthcoming 
+(DOI: 10.1080/07474938.2014.976531).
+}
+
+\author{
+Joaquim J.S. Ramalho <jsr@uevora.pt>
+}
+
+\seealso{
+\code{\link{frmhet}}, for fitting fractional regression models under unobserved heterogeneity.\cr
+\code{\link{frmhet.pe}}, for computing partial effects.
+}
+
+\examples{
+## See the website http://evunix.uevora.pt/~jsr/FRM.htm.
+}
