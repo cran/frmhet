@@ -121,54 +121,67 @@ frmhet.Gn <- function(type,x,z,z.in,u,bet,p)
 
 frmhet.est <- function(type,x,z,link,start,Hy,variance,var.type,var.cluster,gixv,vhat,...)
 {
-	GMMn <- function(p)
-	{
-		XB <- as.vector(x%*%p)
-		gi <- frmhet.gi(type,z,Hy,XB,link)$gi
-
-		gn <- as.matrix(apply(gi,1,mean))
-		Qn <- t(gn)%*%S%*%gn
-
-		return(Qn)
-	}
-
 	if(any(type==c("GMMxv","QMLxv")))
 	{
 		z.in <- z
 		z <- x
 	}
 
-	S <- diag(ncol(z))
-	results <- nlminb(start=start,objective=GMMn,...)
-	p <- results$par
-	XB <- as.vector(x%*%p)
-
-	if(type=="GMMz" & ncol(z)>ncol(x))
+	GMM.est <- T
+	if(any(type==c("GMMx","GMMxv")) & !any(Hy==0))
 	{
-		fi.inv <- frmhet.var(type,p,XB,x,z,link,Hy,var.type,var.cluster,T,gixv,vhat)$fi.inv
-		if(!is.character(fi.inv))
+		results <- tryCatch(glm(Hy ~ x-1,family=Gamma(link=log),maxit=100),error=function(e) return(NULL))
+		if(any(is.null(results))) converged <- F
+		else
 		{
-			S <- fi.inv
-			results <- nlminb(start=start,objective=GMMn,...)
-			p <- results$par
-			XB <- as.vector(x%*%p)
+			p <- results$coefficients
+			XB <- results$linear.predictors
+			converged <- results$converged*(1-results$boundary)
 		}
-	}
 
-	converged <- ifelse(results$convergence==0,T,F)
+		if(converged==T) GMM.est <- F
+	}
+	if(GMM.est==T)
+	{
+		GMMn <- function(p)
+		{
+			XB <- as.vector(x%*%p)
+			gi <- frmhet.gi(type,z,Hy,XB,link)$gi
+
+			gn <- as.matrix(apply(gi,1,mean))
+			Qn <- t(gn)%*%S%*%gn
+
+			return(Qn)
+		}
+
+		S <- diag(ncol(z))
+		results <- nlminb(start=start,objective=GMMn,...)
+		p <- results$par
+		XB <- as.vector(x%*%p)
+
+		if(type=="GMMz" & ncol(z)>ncol(x))
+		{
+			fi.inv <- frmhet.var(type,p,XB,x,z,link,Hy,var.type,var.cluster,T,gixv,vhat)$fi.inv
+			if(!is.character(fi.inv))
+			{
+				S <- fi.inv
+				results <- nlminb(start=start,objective=GMMn,...)
+				p <- results$par
+				XB <- as.vector(x%*%p)
+			}
+
+			Qn <- results$objective
+		}
+
+		converged <- ifelse(results$convergence==0,T,F)
+	}
 
 	ret.list <- list(p=p,XB=XB,converged=converged)
-
-	if(type=="GMMz" & ncol(z)>ncol(x))
-	{
-		Qn <- results$objective
-		ret.list[["Qn"]] <- Qn
-	}
+	if(type=="GMMz" & ncol(z)>ncol(x)) ret.list[["Qn"]] <- Qn
 
 	if(variance==F | converged==F) return(ret.list)
 
 	if(any(type==c("GMMxv","QMLxv"))) z <- z.in
-
 	p.var <- frmhet.var(type,p,XB,x,z,link,Hy,var.type,var.cluster,F,gixv,vhat)$p.var
 	ret.list[["p.var"]] <- p.var
 
@@ -212,15 +225,12 @@ frmhet.var <- function(type,p,XB,x,z,link,Hy,var.type,id,step.one,gixv,vhat)
 		}
 	}
 
-	Gn <- frmhet.Gn(type,x,z,z.in,u,bet,p)
-
 	if(any(type==c("GMMxv","LINxv","QMLxv"))) gi <- rbind(gi,gixv)
 
 	if(var.type=="robust") fi <- (1/N)*gi%*%t(gi)
+
 	if(var.type=="cluster")
 	{
-		if(any(type==c("GMMxv","LINxv","QMLxv"))) z <- x
-
 		fi <- 0
 
 		for(j in unique(id))
@@ -248,15 +258,28 @@ frmhet.var <- function(type,p,XB,x,z,link,Hy,var.type,id,step.one,gixv,vhat)
 
 	if(step.one==T) return(list(fi.inv=fi.inv))
 
-	if(is.character(fi.inv)) var <- "singular"
-	else
+	Gn <- frmhet.Gn(type,x,z,z.in,u,bet,p)
+
+	if(is.numeric(fi.inv))
 	{
 		sigma <- N*t(Gn)%*%fi.inv%*%Gn
-		var <- tryCatch(solve(sigma),error=function(e) NaN)
-		if(any(is.nan(var))) var <- "singular"
+		p.var <- tryCatch(solve(sigma),error=function(e) NaN)
+		if(any(is.nan(p.var))) p.var <- "singular"
+	}
+	else p.var <- "singular"
+
+	if(is.character(p.var))
+	{
+		if(ncol(z)>ncol(x)) p.var <- "singular"
+		else
+		{
+			Gn.inv <- tryCatch(solve(Gn),error=function(e) NaN)
+			if(any(is.nan(Gn.inv))) p.var <- "singular"
+			else p.var <- (1/N)*Gn.inv%*%fi%*%t(Gn.inv)
+		}
 	}
 
-	ret.list <- list(p.var=var)
+	ret.list <- list(p.var=p.var)
 
 	return(ret.list)
 }
@@ -373,7 +396,7 @@ frmhet.pe.table <- function(PE.p,PE.sd,PE.type,which.x,xvar.names,title,adjust,a
 	p.value <- formatC(p.value,digits=3,format="f")
 	stars <- format(stars,justify="left")
 
-	results <- data.frame(cbind(PE.p,PE.sd,z.ratio,p.value,stars))
+	results <- data.frame(cbind(PE.p,PE.sd,z.ratio,p.value,stars),row.names=NULL)
 
 	namcol <- c("Estimate","Std. Error","t value","Pr(>|t|)","")
 	dimnames(results) <- list(which.x,namcol)
@@ -446,16 +469,17 @@ frmhet <- function(y,x,z=x,var.endog,start,type="GMMx",link="logit",intercept=T,
 {
 	### 1. Error and warning messages
 
-	if(missing(y)) stop(sQuote(y)," - dependent variable is missing")
-	if(missing(x)) stop(sQuote(x)," - explanatory variables are missing")
+	if(missing(y)) stop("dependent variable is missing")
+	if(missing(x)) stop("explanatory variables are missing")
 	if(any(y>1) | any(y<0)) stop("The dependent variable has values outside the unit interval")
 	if((any(y==1) | any(y==0)) & adjust==0 & any(type==c("LINx","LINz","LINxv"))) stop("0/1 values for the response variable: LIN estimators require adjustment")
 	if(all(link!=c("logit","probit","cauchit","cloglog","loglog"))) stop(sQuote(link)," - link not recognised")
 	if(all(type!=c("GMMx","GMMz","GMMxv","LINx","LINz","LINxv","QMLxv"))) stop(sQuote(type)," - type not recognised")
 	if(any(type==c("GMMx","GMMz","GMMxv")) & all(link!=c("logit","cloglog"))) stop("type and link not compatible")
+	if(any(type==c("GMMx","GMMz","GMMxv")) & any(y==1)) stop("estimator does not allow y = 1")
 	if(!is.numeric(adjust) & adjust!="drop") stop("adjust not defined properly")
 	if(any(type==c("GMMxv","LINxv","QMLxv")) & missing(var.endog)) stop(sQuote(type)," requires var.endog to be specified")
-
+	if(all(type!=c("GMMxv","LINxv","QMLxv")) & !missing(var.endog)) stop("var.endog should not be specified for this estimator")
 	if(table==T & variance==F)
 	{
 		variance <- T
@@ -464,6 +488,10 @@ frmhet <- function(y,x,z=x,var.endog,start,type="GMMx",link="logit",intercept=T,
 	if(all(var.type!=c("robust","cluster"))) stop(sQuote(var.type)," - var.type not recognised")
 	if(var.type=="cluster" & missing(var.cluster)) stop("option cluster for covariance matrix but no var.cluster supplied")
 	if(var.type=="robust" & !missing(var.cluster)) stop("option robust for covariance matrix but var.cluster supplied")
+
+	if(!is.logical(intercept)) stop("non-logical value assigned to option intercept")
+	if(!is.logical(table)) stop("non-logical value assigned to option table")
+	if(!is.logical(variance)) stop("non-logical value assigned to option variance")
 
 	### 2. Data and variables preparation
 
@@ -492,6 +520,7 @@ frmhet <- function(y,x,z=x,var.endog,start,type="GMMx",link="logit",intercept=T,
 	if(length(x.names)!=length(unique(x.names))) stop("some covariate names in x are identical")
 	if(length(z.names)!=length(unique(z.names))) stop("some instrument names in z are identical")
 	if(identical(x.names,z.names) & any(type==c("GMMz","GMMxv","LINz","LINxv","QMLxv"))) stop("instruments and covariates are identical")
+	if(!identical(x.names,z.names) & any(type==c("GMMx","LINx"))) stop("instruments should not be specified for this estimator")
 	if(length(x.names)>length(z.names)) stop("number of instruments not enough")
 
 	if(adjust=="drop")

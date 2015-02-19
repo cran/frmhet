@@ -110,7 +110,7 @@ In case of an overidentifying model, the following element is also returned:
   \item{J}{the result of Hansen's J test of overidentifying moment conditions.
 }
 
-If \code{variance = TRUE} or \code{table = TRUE}, the previous list also contains the following elements:
+If \code{variance = TRUE} or \code{table = TRUE} and the algorithm converged successfully, the previous list also contains the following elements:
   \item{p.var}{a named covariance matrix.
 }
   \item{var.type}{covariance matrix type.
@@ -135,9 +135,30 @@ Joaquim J.S. Ramalho <jsr@uevora.pt>
 \seealso{
 \code{\link{frmhet.reset}}, for the RESET test.\cr
 \code{\link{frmhet.pe}}, for computing partial effects.\cr
-\code{\link[frm]{frm}}, for fitting standard fractional regression models.
+\code{\link[frm]{frm}}, for fitting standard cross-sectional fractional regression models.\cr
+\code{\link[frmpd]{frmpd}}, for fitting panel data fractional regression models.
 }
 
 \examples{
-## See the website http://evunix.uevora.pt/~jsr/FRM.htm.
+N <- 250
+u <- rnorm(N)
+
+X <- cbind(rnorm(N),rnorm(N))
+dimnames(X)[[2]] <- c("X1","X2")
+
+Z <- cbind(rnorm(N),rnorm(N),rnorm(N))
+dimnames(Z)[[2]] <- c("Z1","Z2","Z3")
+
+y <- exp(X[,1]+X[,2]+u)/(1+exp(X[,1]+X[,2]+u))
+
+#Exogeneity, GMMx estimator
+frmhet(y,X,type="GMMx")
+
+#Endogeneity, GMMz estimator
+frmhet(y,X,Z,type="GMMz")
+
+#Endogeneity, GMMxv estimator
+frmhet(y,X,Z,X[,1],type="GMMxv")
+
+## See the website http://evunix.uevora.pt/~jsr/FRM.htm for more examples.
 }
