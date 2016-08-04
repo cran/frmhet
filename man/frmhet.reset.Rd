@@ -40,7 +40,7 @@ models estimated via \code{frmhet} using the options \code{GMMx} or \code{LINx}.
 specification and the transformation applied to the response variable by each 
 estimator.  It is taken into account the option that was chosen for computing 
 standard errors in the model under evaluation. See Ramalho and Ramalho and 
-Ramalho (2015) for details.
+Ramalho (2016) for details.
 }
 
 \value{
@@ -48,7 +48,7 @@ Ramalho (2015) for details.
 }
 
 \references{
-Ramalho, E.A. and J.J.S. Ramalho (2015), "Moment-based estimation of nonlinear 
+Ramalho, E.A. and J.J.S. Ramalho (2016), "Moment-based estimation of nonlinear 
 regression models with boundary outcomes and endogeneity, with applications to 
 nonnegative and fractional responses", \emph{Econometric Reviews}, forthcoming 
 (DOI: 10.1080/07474938.2014.976531).

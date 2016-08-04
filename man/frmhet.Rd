@@ -66,7 +66,7 @@ Arguments to pass to \link[stats]{nlminb}.
 }
 
 \details{
-\code{frmhet} computes the GMM estimators proposed in Ramalho and Ramalho (2015) 
+\code{frmhet} computes the GMM estimators proposed in Ramalho and Ramalho (2016) 
 for fractional regression models with unobserved heterogeneity: GMMx, which allows for 
 neglected heterogeneity but not for endogeneity; GMMxv, which allows both issues
 and assumes a linear reduced form for the endogeneous covariate (or for a transformation
@@ -74,7 +74,7 @@ of it); and GMMz, which also allows for both issues but does not require the ass
 of a reduced form for the endogenous covariate. In addition, \code{frmhet} also computes
 three linearized estimators (LINx, LINxv and LINz) that have similar features to their 
 GMM counterparts as well as a QML estimator that allows for endogeneity but
-not for neglected heterogeneity (QMLxv); see Ramalho and Ramalho (2015) for details on 
+not for neglected heterogeneity (QMLxv); see Ramalho and Ramalho (2016) for details on 
 each estimator. For overidentified models, \code{frmhet} calculates Hansen's J statistic. 
 For \code{GMMx} and \code{LINx}, \code{frmhet} stores the information needed to implement 
 the RESET test (\link{frmhet.reset}). For all estimators, \code{frmhet} stores the 
@@ -122,7 +122,7 @@ If \code{var.type = "cluster"}, the list also contains the following element:
 }
 
 \references{
-Ramalho, E.A. and J.J.S. Ramalho (2015), "Moment-based estimation of nonlinear 
+Ramalho, E.A. and J.J.S. Ramalho (2016), "Moment-based estimation of nonlinear 
 regression models with boundary outcomes and endogeneity, with applications to 
 nonnegative and fractional responses", \emph{Econometric Reviews}, forthcoming 
 (DOI: 10.1080/07474938.2014.976531).

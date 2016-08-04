@@ -100,14 +100,14 @@ frmhet.Gn <- function(type,x,z,z.in,u,bet,p)
 {
 	N <- length(u)
 
-	if(all(type!=c("GMMxv","LINxv","QMLxv"))) Gn <- -(1/N)*t(z)%*%diag(bet)%*%x
+	if(all(type!=c("GMMxv","LINxv","QMLxv"))) Gn <- -(1/N)*t(z*bet)%*%x
 	if(any(type==c("GMMxv","LINxv","QMLxv")))
 	{
 		k <- ncol(x)
 		
-		G11 <- -(1/N)*t(z)%*%diag(bet)%*%x
+		G11 <- -(1/N)*t(z*bet)%*%x
 
-		G12 <- (1/N)*t(x)%*%diag(bet*p[k])%*%z.in
+		G12 <- (1/N)*t(x*(bet*p[k]))%*%z.in
 		G12[k,] <- G12[k,]-(1/N)*apply(u*z.in,2,sum)
 
 		G21 <- matrix(0,nrow=ncol(z.in),ncol=k)
@@ -891,7 +891,7 @@ frmhet.pe <- function(object,smearing=T,APE=T,CPE=F,at=NULL,which.x=NULL,table=T
 
 	### 3. Average partial effects
 
-	if(smearing==T) title1 <- "(conditional only on unobservables, based on the smearing estimator)"
+	if(smearing==T) title1 <- "(conditional only on observables, based on the smearing estimator)"
 	else title1 <- "(conditional on both observables and unobservables, with error term = 0)"
 
 	title2 <- paste("Fractional",link,"regression model")

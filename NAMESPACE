@@ -1,1 +1,2 @@
 export(frmhet,frmhet.reset,frmhet.pe)
+importFrom("stats", "Gamma", "dcauchy", "dlogis", "dnorm", "glm", "lm", "median", "model.frame", "model.matrix", "model.response", "nlminb", "pcauchy", "pchisq", "plogis", "pnorm", "qcauchy", "qlogis", "qnorm")

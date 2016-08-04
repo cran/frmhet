@@ -49,7 +49,7 @@ a logical value indicating whether the variance of the estimated partial effects
 These partial effects may be conditional only on observables, using the smearing estimator, 
 or also on unobservables, setting the error term to zero. For calculating standard errors, it 
 is taken into account the option that was previously chosen for estimating the model. See 
-Ramalho and Ramalho (2015) for details on the computation of partial effects for fractional 
+Ramalho and Ramalho (2016) for details on the computation of partial effects for fractional 
 regression models under unobserved heterogeneity.
 }
 
@@ -67,7 +67,7 @@ returned, indexed by the prefixes \code{ape} and \code{cpe}.
 }
 
 \references{
-Ramalho, E.A. and J.J.S. Ramalho (2015), "Moment-based estimation of nonlinear 
+Ramalho, E.A. and J.J.S. Ramalho (2016), "Moment-based estimation of nonlinear 
 regression models with boundary outcomes and endogeneity, with applications to 
 nonnegative and fractional responses", \emph{Econometric Reviews}, forthcoming 
 (DOI: 10.1080/07474938.2014.976531).

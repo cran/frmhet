@@ -1,7 +1,7 @@
-c3ae8c95980e9b3cad983d9894bb7ec8 *DESCRIPTION
-60de747dec75e8ce6553d53f03dace2a *NAMESPACE
-408695a70cbbad059b7d25026ad1e9f3 *R/frmhet.R
-b07db2d203a100fd440fee9e03548232 *man/frmhet-package.Rd
-7d777f4e02f9f16d9e21e27527ff6865 *man/frmhet.Rd
-d240dbd5ffb800012a7296fc991597c7 *man/frmhet.pe.Rd
-9ef871deac2622e24a59bb6ccecd396d *man/frmhet.reset.Rd
+b69393d71ffdcdcf3a036ad8b865346d *DESCRIPTION
+266460dca77fafad87f9400f32675135 *NAMESPACE
+970c4e217ac4eb2963878109c159b93c *R/frmhet.R
+0f68cb7cccd9914b52595ce2f3f97196 *man/frmhet-package.Rd
+590be5eea4db846b58c4a6344ff8d0a3 *man/frmhet.Rd
+bce12c9c6ce47411f73c62fb4e17ef45 *man/frmhet.pe.Rd
+2c9d6505d9c3c6ea01ca7e8083b5ad4d *man/frmhet.reset.Rd
